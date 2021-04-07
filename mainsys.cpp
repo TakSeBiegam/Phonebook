@@ -20,9 +20,14 @@ void show_main_menu_title();
 bool contact_person_add(vector<contact>&);
 bool contact_person_remove_byname(vector<contact>&);
 bool contact_person_remove_byid(vector<contact>&);
-bool contact_person_modify();
+bool contact_person_modify(vector<contact>&);
 
+bool contact_person_list(vector<contact>&);
+
+//Load from file
 bool contact_list_load(vector<contact>&);
+//Update to file
+bool contact_list_update(vector<contact>&);
 
 short int menu_control_panel(vector<contact>&);
 
@@ -90,17 +95,21 @@ short int menu_control_panel(vector<contact>& st)
         {
         case 1:
             contact_person_add(st);
+            contact_list_update(st);
             break;
         case 2:
             contact_person_remove_byname(st);
+            contact_list_update(st);
             break;
         case 3:
             contact_person_remove_byid(st);
+            contact_list_update(st);
             break;
         case 4:
-            contact_person_modify();
+            contact_person_modify(st);
+            contact_list_update(st);
             break;
-        case 4:
+        case 5:
             cout << "PHONEBOOK LIST" << endl;
             break;
         case 6:
@@ -145,7 +154,7 @@ bool contact_person_add(vector<contact>& st)
 
     cout << "Phone number: " << endl;
     getline(cin, telnr);
-    if(name.length() <= 2)
+    if(telnr.length() <= 2)
     {
         cout << "Phone number cannot be smaller than 2 chars" << endl;
         cout << "Returning to the menu" << endl;
@@ -155,7 +164,7 @@ bool contact_person_add(vector<contact>& st)
 
     cout << "Email: " << endl;
     getline(cin, email);
-    if(name.length() <= 5)
+    if(email.length() <= 5)
     {
         cout << "Email cannot be smaller than 5 chars" << endl;
         cout << "Returning to the menu" << endl;
@@ -250,11 +259,16 @@ bool contact_person_remove_byid(vector<contact> &st)
     return true;
 }
 
-bool contact_person_modify()
+bool contact_person_modify(vector<contact> &st)
 {
+
     int id = 0;
     cout << "Enter contact id to modify: ";
     cin >> id;
+    string name = "";
+    string email = "";
+    string tel_nr = "";
+    string description = "";
     if(id >= st.size() || !cin.good() || id <= 0)
     {
         cin.clear();
@@ -265,9 +279,77 @@ bool contact_person_modify()
     }
 
     system("CLS");
-    cout << "FOUNDED "
-    
-    return false;
+    cout << "  ORIGNAL DATA  " << endl;
+    cout << "----------------" << endl;
+    cout << st[id].nick << endl;
+    cout << st[id].tel_nr << endl;
+    cout << st[id].email << endl;
+    cout << st[id].description << endl;
+    cout << "----------------" << endl;
+    cout << "  DATA TO EDIT  " << endl;
+    cout << "(if keep old data, press enter)" << endl;
+    cout << "----------------" << endl;
+    cout << "Name:" << endl;
+    cin.clear();
+    cin.ignore();
+    getline(cin, name);
+    if(name.length() <= 2)
+    {
+        if(name.length() != 0)
+        {
+            cout << "Name cannot be smaller than 2 chars" << endl;
+            cout << "Returning to the menu" << endl;
+            Sleep(2000);
+            return false;
+        }
+    }
+    if(name.length() != 0)
+    {
+        st[id].nick = name;
+    }
+
+    cout << "Phone number: " << endl;
+    getline(cin, tel_nr);
+    if(tel_nr.length() <= 2)
+    {
+        if(tel_nr.length() != 0)
+        {
+            cout << "Phone number cannot be smaller than 2 chars" << endl;
+            cout << "Returning to the menu" << endl;
+            Sleep(2000);
+            return false;
+        }
+    }
+    if(tel_nr.length() != 0)
+    {
+        st[id].tel_nr = stoi(tel_nr);
+    }
+
+    cout << "Email: " << endl;
+    getline(cin, email);
+    if(email.length() <= 5)
+    {
+        if(email.length() != 0)
+        {
+            cout << "Email cannot be smaller than 5 chars" << endl;
+            cout << "Returning to the menu" << endl;
+            Sleep(2000);
+            return false;
+        }
+    }
+    if(email.length() != 0)
+    {
+        st[id].email = email;
+    }
+
+    cout << "Description: " << endl;
+    getline(cin, description);
+    if(email.length() != 0)
+    {
+        st[id].description = description;
+    }
+
+    return true;
 }
 
 
@@ -280,12 +362,12 @@ bool contact_person_modify()
 //                    //
 ////////////////////////
 
-/*bool contact_list_update()
+bool contact_list_update(vector<contact> &st)
 {
 
     return false;
 }
-*/
+
 
 bool contact_list_load(vector<contact> &st)
 {
