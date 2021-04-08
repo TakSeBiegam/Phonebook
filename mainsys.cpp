@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stdlib.h>
+#include <cstdlib>
 #include <windows.h>
 
 
@@ -79,8 +81,9 @@ short int menu_control_panel(vector<contact>& st)
         {
         cout << i << ">> " << st[i].nick << endl;
         }
-        cout << st.size() << endl;
         cout << endl;
+
+        show_main_menu_title();
         cout << "Select option: " << endl;
         cout << "1 Add Person" << endl;
         cout << "2 Remove Person by name" << endl;
@@ -110,7 +113,7 @@ short int menu_control_panel(vector<contact>& st)
             contact_list_update(st);
             break;
         case 5:
-            cout << "PHONEBOOK LIST" << endl;
+            contact_person_list(st);
             break;
         case 6:
             infinity_loop_breaker = false;
@@ -362,10 +365,108 @@ bool contact_person_modify(vector<contact> &st)
 //                    //
 ////////////////////////
 
+string crypt(string text_to_crypt)
+{
+    string crypted = "";
+    for(size_t i = 1; i <= text_to_crypt.length(); ++i)
+    {
+        if(i%2 == 0)
+        {
+            crypted += (text_to_crypt[i-1] - 2);
+        }
+        else{
+           crypted += (text_to_crypt[i-1] + 3);
+        }
+        if(i % 5 == 0)
+            crypted += rand() % 24 + 97;
+    }
+
+    return crypted;
+}
+
+string decrypt(string text_to_decrypt)
+{
+    string decrypted = "";
+    bool is_change_polarity = true;
+
+    for(size_t i = 1; i <= text_to_decrypt.length(); i++)
+    {
+        if(i % 6 == 0){
+            if(is_change_polarity)
+            {
+                is_change_polarity = false;
+                continue;
+            }
+            else{
+                is_change_polarity = true;
+                continue;
+            }
+        }
+        if(is_change_polarity)
+            if(i%2 == 0)
+            {
+                decrypted += (text_to_decrypt[i-1] + 2);
+            }
+            else{
+                decrypted += (text_to_decrypt[i-1] - 3);
+            }
+        else{
+            if(i%2 == 0)
+            {
+                decrypted += (text_to_decrypt[i-1] - 3);
+            }
+            else{
+                decrypted += (text_to_decrypt[i-1] + 2);
+            }
+        }
+    }
+
+    return decrypted;
+}
+
 bool contact_list_update(vector<contact> &st)
 {
+    fstream pb;
+    pb.open("phonebook.txt", ios::out);
+    if(!pb.good())
+        return false;
+    for(size_t i = 1; i < st.size(); ++i)
+    {
+        string nick = st[i].nick;
+        string crypto_nick = "";
 
-    return false;
+        string tel_nr = to_string(st[i].tel_nr);
+        string crypto_telnr = "";
+
+        string email = st[i].email;
+        string crypto_email = "";
+
+        string descrption = st[i].description;
+        string crypto_desc = "";
+
+        crypto_nick = crypt(nick);
+        crypto_email = crypt(email);
+        crypto_telnr = crypt(tel_nr);
+        crypto_desc = crypt(descrption);
+
+
+
+        pb << crypto_nick << endl;
+        pb << crypto_telnr << endl;
+        pb << crypto_email << endl;
+        pb << crypto_desc << endl;
+        string spacer = "";
+        int long_char_in_empty_line = rand()%15+1;
+        for(size_t j = 0; j < long_char_in_empty_line; j++)
+        {
+            spacer += rand() % 24 + 97;
+        }
+        pb << spacer << endl;
+    }
+
+    pb.close();
+
+    return true;
 }
 
 
@@ -394,14 +495,105 @@ bool contact_list_load(vector<contact> &st)
         getline(pb, data_spacer);
 
         st.push_back(contact());
+        string data_nick_decrypted = decrypt(data_nick);
+        string data_telnr_decrypted = decrypt(data_telnr);
+        string data_email_decrypted = decrypt(data_email);
+        string data_description_decrypted = decrypt(data_description);
 
+        cout << data_nick_decrypted << endl;
+        cout << data_telnr_decrypted << endl;
+        cout << data_email_decrypted << endl;
+        cout << data_description_decrypted << endl;
+        st[person_nr].nick = data_nick_decrypted;
+        st[person_nr].tel_nr = stoi(data_telnr_decrypted);
+        st[person_nr].email = data_email_decrypted;
+        st[person_nr].description = data_description_decrypted;
+
+        /*st[person_nr].nick = data_nick;
         st[person_nr].tel_nr = stoi(data_telnr);
-        st[person_nr].nick = data_nick;
         st[person_nr].email = data_email;
-        st[person_nr].description = data_description;
+        st[person_nr].description = data_description;*/
+
         person_nr++;
     }
+    st.pop_back();
     pb.close();
     return true;
 }
 
+int show_page(int pointer_in_phonebook, vector<contact> &st, char direction)
+{
+    if(direction == 'u')
+    {
+        for(size_t i = pointer_in_phonebook; i < pointer_in_phonebook + 15; i++)
+        {
+            if(i == st.size())
+                return pointer_in_phonebook;
+            cout << i << ">> " << st[i].nick << endl;
+        }
+        pointer_in_phonebook += 15;
+
+        return pointer_in_phonebook;
+    }
+    else{
+        for(size_t i = pointer_in_phonebook - 15; i < pointer_in_phonebook; i++)
+        {
+            if(i < 1)
+                return pointer_in_phonebook;
+            cout << i << ">> " << st[i].nick << endl;
+        }
+        pointer_in_phonebook -= 15;
+
+        return pointer_in_phonebook;
+    }
+    /*
+    ZASTANOWIC SIE NAD COFANIEM STRONY !!!
+
+    */
+
+}
+
+bool contact_person_list(vector<contact> &st)
+{
+    int choice = 0;
+    int pointer_on_place_in_phonebook = 1;
+
+    system("CLS");
+    show_main_menu_title();
+    bool infinity_loop_breaker = true;
+    show_page(pointer_on_place_in_phonebook, st, 'u');
+
+    do{
+        cout << endl;
+        cout << "Select option: " << endl;
+        cout << "1 Prev Page" << endl;
+        cout << "2 Next Page" << endl;
+        cout << "3 Select Person" << endl;
+        cout << "4 Quit" << endl;
+        cout << "Your Choice: ";
+        cin >> choice;
+        switch (choice)
+        {
+        case 1:
+            system("CLS");
+            show_main_menu_title();
+            pointer_on_place_in_phonebook = show_page(pointer_on_place_in_phonebook, st, 'u');
+            break;
+        case 2:
+            system("CLS");
+            show_main_menu_title();
+            pointer_on_place_in_phonebook = show_page(pointer_on_place_in_phonebook, st, 'd');
+            break;
+        case 3:
+            //Dokonczyc funkcje
+            break;
+        case 4:
+            return true;
+            break;
+        default:
+            break;
+        }
+    }while(infinity_loop_breaker);
+
+    return false;
+}
