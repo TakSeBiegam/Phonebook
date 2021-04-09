@@ -77,20 +77,20 @@ short int menu_control_panel(vector<contact>& st)
     do{
         system("CLS");
         short int choice = 0;
-        for(size_t i = 0; i < st.size(); ++i)
+        /*for(size_t i = 0; i < st.size(); ++i)
         {
         cout << i << ">> " << st[i].nick << endl;
-        }
+        }*/
         cout << endl;
-
+        st.size();
         show_main_menu_title();
         cout << "Select option: " << endl;
         cout << "1 Add Person" << endl;
         cout << "2 Remove Person by name" << endl;
         cout << "3 Remove Person by id" << endl;
-        cout << "4 Modify Person" << endl;
-        cout << "5 Phonebook List" << endl;
-        cout << "6 Quit" << endl;
+        //cout << "4 Modify Person" << endl;
+        cout << "4 Phonebook List" << endl;
+        cout << "5 Quit" << endl;
         cout << "Your Choice: ";
         cin >> choice;
 
@@ -108,18 +108,21 @@ short int menu_control_panel(vector<contact>& st)
             contact_person_remove_byid(st);
             contact_list_update(st);
             break;
-        case 4:
+        /*case 4:
             contact_person_modify(st);
             contact_list_update(st);
-            break;
-        case 5:
+            break;*/
+        case 4:
             contact_person_list(st);
             break;
-        case 6:
+        case 5:
             infinity_loop_breaker = false;
             break;
         default: //0 - NULL
-            cout << endl << "! failed communication with essential systems !" << endl << endl << endl;
+            cout << endl << "! failed communication with essential systems !" << endl;
+            cout << "! ERROR - Reopening system" << endl << endl << endl;
+            Sleep(2000);
+            choice = 999;
             break;
         }
     }while(infinity_loop_breaker);
@@ -266,7 +269,7 @@ bool contact_person_modify(vector<contact> &st)
 {
 
     int id = 0;
-    cout << "Enter contact id to modify: ";
+    cout << endl << "Enter contact id: ";
     cin >> id;
     string name = "";
     string email = "";
@@ -280,7 +283,8 @@ bool contact_person_modify(vector<contact> &st)
         Sleep(2000);
         return false;
     }
-
+    bool is_editing = false;
+    char edit_data_char;
     system("CLS");
     cout << "  ORIGNAL DATA  " << endl;
     cout << "----------------" << endl;
@@ -289,69 +293,85 @@ bool contact_person_modify(vector<contact> &st)
     cout << st[id].email << endl;
     cout << st[id].description << endl;
     cout << "----------------" << endl;
-    cout << "  DATA TO EDIT  " << endl;
-    cout << "(if keep old data, press enter)" << endl;
-    cout << "----------------" << endl;
-    cout << "Name:" << endl;
-    cin.clear();
-    cin.ignore();
-    getline(cin, name);
-    if(name.length() <= 2)
+    cout << "Do you wanna edit data ? " << endl;
+    cout << "Type Y/n: " << endl;
+    cin >> edit_data_char;
+    switch(edit_data_char)
     {
+    case 'Y':
+    case 'y':
+        is_editing = true;
+        break;
+    default:
+        is_editing = false;
+        break;
+    }
+    if(is_editing)
+    {
+        cout << "----------------" << endl;
+        cout << "  DATA TO EDIT  " << endl;
+        cout << "(if keep old data, press enter)" << endl;
+        cout << "----------------" << endl;
+        cout << "Name:" << endl;
+        cin.clear();
+        cin.ignore();
+        getline(cin, name);
+        if(name.length() <= 2)
+        {
+            if(name.length() != 0)
+            {
+                cout << "Name cannot be smaller than 2 chars" << endl;
+                cout << "Returning to the menu" << endl;
+                Sleep(2000);
+                return false;
+            }
+        }
         if(name.length() != 0)
         {
-            cout << "Name cannot be smaller than 2 chars" << endl;
-            cout << "Returning to the menu" << endl;
-            Sleep(2000);
-            return false;
+            st[id].nick = name;
         }
-    }
-    if(name.length() != 0)
-    {
-        st[id].nick = name;
-    }
 
-    cout << "Phone number: " << endl;
-    getline(cin, tel_nr);
-    if(tel_nr.length() <= 2)
-    {
+        cout << "Phone number: " << endl;
+        getline(cin, tel_nr);
+        if(tel_nr.length() <= 2)
+        {
+            if(tel_nr.length() != 0)
+            {
+                cout << "Phone number cannot be smaller than 2 chars" << endl;
+                cout << "Returning to the menu" << endl;
+                Sleep(2000);
+                return false;
+            }
+        }
         if(tel_nr.length() != 0)
         {
-            cout << "Phone number cannot be smaller than 2 chars" << endl;
-            cout << "Returning to the menu" << endl;
-            Sleep(2000);
-            return false;
+            st[id].tel_nr = stoi(tel_nr);
         }
-    }
-    if(tel_nr.length() != 0)
-    {
-        st[id].tel_nr = stoi(tel_nr);
-    }
 
-    cout << "Email: " << endl;
-    getline(cin, email);
-    if(email.length() <= 5)
-    {
+        cout << "Email: " << endl;
+        getline(cin, email);
+        if(email.length() <= 5)
+        {
+            if(email.length() != 0)
+            {
+                cout << "Email cannot be smaller than 5 chars" << endl;
+                cout << "Returning to the menu" << endl;
+                Sleep(2000);
+                return false;
+            }
+        }
         if(email.length() != 0)
         {
-            cout << "Email cannot be smaller than 5 chars" << endl;
-            cout << "Returning to the menu" << endl;
-            Sleep(2000);
-            return false;
+            st[id].email = email;
+        }
+
+        cout << "Description: " << endl;
+        getline(cin, description);
+        if(email.length() != 0)
+        {
+            st[id].description = description;
         }
     }
-    if(email.length() != 0)
-    {
-        st[id].email = email;
-    }
-
-    cout << "Description: " << endl;
-    getline(cin, description);
-    if(email.length() != 0)
-    {
-        st[id].description = description;
-    }
-
     return true;
 }
 
@@ -456,7 +476,7 @@ bool contact_list_update(vector<contact> &st)
         pb << crypto_email << endl;
         pb << crypto_desc << endl;
         string spacer = "";
-        int long_char_in_empty_line = rand()%15+1;
+        int long_char_in_empty_line = rand()%20+7;
         for(size_t j = 0; j < long_char_in_empty_line; j++)
         {
             spacer += rand() % 24 + 97;
@@ -516,7 +536,6 @@ bool contact_list_load(vector<contact> &st)
 
         person_nr++;
     }
-    st.pop_back();
     pb.close();
     return true;
 }
@@ -525,17 +544,20 @@ int show_page(int pointer_in_phonebook, vector<contact> &st, char direction)
 {
     if(direction == 'u')
     {
-        for(size_t i = pointer_in_phonebook; i < pointer_in_phonebook + 15; i++)
+        for(size_t i = pointer_in_phonebook; i < (pointer_in_phonebook + 15); i++)
         {
-            if(i == st.size())
+            if(i == (st.size()-1))
                 return pointer_in_phonebook;
             cout << i << ">> " << st[i].nick << endl;
         }
         pointer_in_phonebook += 15;
-
-        return pointer_in_phonebook;
     }
     else{
+            if(pointer_in_phonebook - 15 < 1)
+            {
+                show_page(pointer_in_phonebook, st, 'u');
+                return pointer_in_phonebook;
+            }
         for(size_t i = pointer_in_phonebook - 15; i < pointer_in_phonebook; i++)
         {
             if(i < 1)
@@ -543,14 +565,9 @@ int show_page(int pointer_in_phonebook, vector<contact> &st, char direction)
             cout << i << ">> " << st[i].nick << endl;
         }
         pointer_in_phonebook -= 15;
-
-        return pointer_in_phonebook;
     }
-    /*
-    ZASTANOWIC SIE NAD COFANIEM STRONY !!!
 
-    */
-
+    return pointer_in_phonebook;
 }
 
 bool contact_person_list(vector<contact> &st)
@@ -561,7 +578,8 @@ bool contact_person_list(vector<contact> &st)
     system("CLS");
     show_main_menu_title();
     bool infinity_loop_breaker = true;
-    show_page(pointer_on_place_in_phonebook, st, 'u');
+    bool is_last_was_prev_page = false;
+    pointer_on_place_in_phonebook = show_page(pointer_on_place_in_phonebook, st, 'u');
 
     do{
         cout << endl;
@@ -570,6 +588,7 @@ bool contact_person_list(vector<contact> &st)
         cout << "2 Next Page" << endl;
         cout << "3 Select Person" << endl;
         cout << "4 Quit" << endl;
+        cout << "pointer: " << pointer_on_place_in_phonebook << endl;
         cout << "Your Choice: ";
         cin >> choice;
         switch (choice)
@@ -577,20 +596,34 @@ bool contact_person_list(vector<contact> &st)
         case 1:
             system("CLS");
             show_main_menu_title();
-            pointer_on_place_in_phonebook = show_page(pointer_on_place_in_phonebook, st, 'u');
+            pointer_on_place_in_phonebook = show_page(pointer_on_place_in_phonebook, st, 'd');
+            is_last_was_prev_page = true;
             break;
         case 2:
             system("CLS");
             show_main_menu_title();
-            pointer_on_place_in_phonebook = show_page(pointer_on_place_in_phonebook, st, 'd');
+            if(is_last_was_prev_page)
+            {
+                is_last_was_prev_page = false;
+                pointer_on_place_in_phonebook += 15;
+            }
+            pointer_on_place_in_phonebook = show_page(pointer_on_place_in_phonebook, st, 'u');
             break;
         case 3:
-            //Dokonczyc funkcje
+            contact_person_modify(st);
+            contact_list_update(st);
+            system("CLS");
+            show_main_menu_title();
+            show_page(pointer_on_place_in_phonebook, st, 'u');
             break;
         case 4:
             return true;
             break;
         default:
+            system("CLS");
+            show_main_menu_title();
+            show_page(pointer_on_place_in_phonebook, st, 'u');
+            choice = 999;
             break;
         }
     }while(infinity_loop_breaker);
