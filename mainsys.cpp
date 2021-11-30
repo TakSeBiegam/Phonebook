@@ -520,10 +520,10 @@ bool contact_list_load(vector<contact> &st)
         string data_email_decrypted = decrypt(data_email);
         string data_description_decrypted = decrypt(data_description);
 
-        cout << data_nick_decrypted << endl;
+        /*cout << data_nick_decrypted << endl;
         cout << data_telnr_decrypted << endl;
         cout << data_email_decrypted << endl;
-        cout << data_description_decrypted << endl;
+        cout << data_description_decrypted << endl;*/
         st[person_nr].nick = data_nick_decrypted;
         st[person_nr].tel_nr = stoi(data_telnr_decrypted);
         st[person_nr].email = data_email_decrypted;
@@ -546,7 +546,7 @@ int show_page(int pointer_in_phonebook, vector<contact> &st, char direction)
     {
         for(size_t i = pointer_in_phonebook; i < (pointer_in_phonebook + 15); i++)
         {
-            if(i == (st.size()-1))
+            if(i == st.size())
                 return pointer_in_phonebook;
             cout << i << ">> " << st[i].nick << endl;
         }
